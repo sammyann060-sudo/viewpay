@@ -63,8 +63,8 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   --color-success: var(--success);
-  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -76,42 +76,46 @@
 }
 
 :root {
-  --radius: 1rem;
-  --background: oklch(0.16 0.02 160);
-  --foreground: oklch(0.96 0.01 120);
-  --card: oklch(0.21 0.025 160);
-  --card-foreground: oklch(0.96 0.01 120);
-  --popover: oklch(0.21 0.025 160);
-  --popover-foreground: oklch(0.96 0.01 120);
-  --primary: oklch(0.86 0.2 128);
-  --primary-foreground: oklch(0.18 0.03 160);
-  --secondary: oklch(0.27 0.03 160);
-  --secondary-foreground: oklch(0.96 0.01 120);
-  --muted: oklch(0.25 0.025 160);
-  --muted-foreground: oklch(0.7 0.03 150);
-  --accent: oklch(0.8 0.15 75);
-  --accent-foreground: oklch(0.18 0.03 160);
+  --radius: 0.85rem;
+  --background: oklch(0.145 0.014 165);
+  --foreground: oklch(0.94 0.015 90);
+  --card: oklch(0.19 0.016 165);
+  --card-foreground: oklch(0.94 0.015 90);
+  --popover: oklch(0.19 0.016 165);
+  --popover-foreground: oklch(0.94 0.015 90);
+  --primary: oklch(0.75 0.095 157);
+  --primary-foreground: oklch(0.16 0.018 165);
+  --secondary: oklch(0.235 0.018 165);
+  --secondary-foreground: oklch(0.92 0.015 90);
+  --muted: oklch(0.22 0.016 165);
+  --muted-foreground: oklch(0.71 0.018 150);
+  --accent: oklch(0.78 0.095 82);
+  --accent-foreground: oklch(0.18 0.018 165);
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.78 0.17 150);
-  --border: oklch(0.3 0.03 160);
-  --input: oklch(0.32 0.03 160);
-  --ring: oklch(0.86 0.2 128);
-  --chart-1: oklch(0.86 0.2 128);
-  --chart-2: oklch(0.8 0.15 75);
-  --chart-3: oklch(0.6 0.1 200);
-  --chart-4: oklch(0.7 0.15 30);
-  --chart-5: oklch(0.6 0.1 300);
-  --sidebar: oklch(0.21 0.025 160);
-  --sidebar-foreground: oklch(0.96 0.01 120);
-  --sidebar-primary: oklch(0.86 0.2 128);
-  --sidebar-primary-foreground: oklch(0.18 0.03 160);
-  --sidebar-accent: oklch(0.27 0.03 160);
-  --sidebar-accent-foreground: oklch(0.96 0.01 120);
-  --sidebar-border: oklch(0.3 0.03 160);
-  --sidebar-ring: oklch(0.86 0.2 128);
-  --gradient-glow: radial-gradient(60% 50% at 50% 0%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%);
-  --shadow-glow: 0 20px 50px -20px color-mix(in oklab, var(--primary) 55%, transparent);
+  --success: oklch(0.74 0.09 155);
+  --border: oklch(0.29 0.018 165);
+  --input: oklch(0.31 0.018 165);
+  --ring: oklch(0.75 0.095 157);
+  --chart-1: oklch(0.75 0.095 157);
+  --chart-2: oklch(0.78 0.095 82);
+  --chart-3: oklch(0.68 0.07 210);
+  --chart-4: oklch(0.68 0.08 35);
+  --chart-5: oklch(0.67 0.06 300);
+  --sidebar: oklch(0.17 0.015 165);
+  --sidebar-foreground: oklch(0.94 0.015 90);
+  --sidebar-primary: oklch(0.75 0.095 157);
+  --sidebar-primary-foreground: oklch(0.16 0.018 165);
+  --sidebar-accent: oklch(0.235 0.018 165);
+  --sidebar-accent-foreground: oklch(0.92 0.015 90);
+  --sidebar-border: oklch(0.29 0.018 165);
+  --sidebar-ring: oklch(0.75 0.095 157);
+  --gradient-glow: radial-gradient(
+    70% 46% at 50% 0%,
+    color-mix(in oklab, var(--primary) 8%, transparent),
+    transparent 72%
+  );
+  --shadow-glow: 0 16px 42px -24px color-mix(in oklab, var(--accent) 28%, transparent);
 }
 
 @layer base {
@@ -126,7 +130,16 @@
 }
 
 @layer base {
-  body { font-family: var(--font-sans); background-image: var(--gradient-glow); background-repeat: no-repeat; min-height: 100vh; }
+  body {
+    font-family: var(--font-sans);
+    background-image: var(--gradient-glow);
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
 }
-@utility shadow-glow { box-shadow: var(--shadow-glow); }
-@utility tabular { font-variant-numeric: tabular-nums; }
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}

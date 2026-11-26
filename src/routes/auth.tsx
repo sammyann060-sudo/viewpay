@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BrandLogo } from "@/components/app/Brand";
 import { supabase } from "@/integrations/supabase/client";
 import { signInWithUsername } from "@/lib/auth.functions";
 import {
@@ -144,9 +145,7 @@ function AuthPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-5 py-10">
-      <div className="mb-8 text-2xl font-extrabold tracking-tight">
-        view<span className="text-primary">pay</span>
-      </div>
+      <BrandLogo className="mb-8 h-11 w-auto self-start" />
       <h1 className="text-3xl font-extrabold tracking-tight">
         {mode === "signup" ? "Create your account" : "Welcome back"}
       </h1>

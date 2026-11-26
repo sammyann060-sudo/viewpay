@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/app/Brand";
 import { DeviceVerificationGate } from "@/components/app/DeviceVerificationGate";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPointsValue, getOrCreateDeviceId, useSession } from "@/lib/viewpay";
@@ -179,8 +180,8 @@ export function Shell({ children }: { children: (userId: string) => ReactNode })
       <header
         className={`flex items-center justify-between pt-6 pb-4 ${isAdminPath ? "px-4 sm:px-6 lg:px-8" : "px-5"}`}
       >
-        <Link to="/earn" className="text-xl font-extrabold tracking-tight">
-          view<span className="text-primary">pay</span>
+        <Link to="/earn" aria-label="ViewPay home" className="inline-flex items-center">
+          <BrandLogo className="h-9 w-auto" />
         </Link>
         <div className="flex items-center gap-2">
           <div className="rounded-full bg-secondary px-3 py-1.5 text-sm font-semibold tabular">

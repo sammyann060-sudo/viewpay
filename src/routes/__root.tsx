@@ -8,11 +8,10 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -39,10 +38,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -92,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         property: "og:description",
         content: "Watch short ads, earn points, cash out to M-Pesa in Kenya or USDT worldwide.",
       },
-      { name: "theme-color", content: "#0f1f18" },
+      { name: "theme-color", content: "#10211b" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -101,12 +96,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml", sizes: "any" },
+      { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "48x48" },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@500;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap",
       },
     ],
   }),

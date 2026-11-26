@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlayCircle, HelpCircle, Coins, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/app/Brand";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,9 +35,7 @@ const steps = [
 function Landing() {
   return (
     <div className="mx-auto max-w-lg px-5 py-8">
-      <div className="text-xl font-extrabold tracking-tight">
-        view<span className="text-primary">pay</span>
-      </div>
+      <BrandLogo className="h-11 w-auto" />
       <section className="pt-16 pb-12">
         <p className="mb-4 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
           500 points = KSh 100

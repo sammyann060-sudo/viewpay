@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="190" height="56" viewBox="0 0 190 56" fill="none">
-  <rect x="4" y="4" width="48" height="48" rx="15" fill="#10211B" stroke="#3B5147" stroke-width="1.5"/>
-  <path d="M12 28c4.2-6.1 9.5-9.2 16-9.2S39.8 21.9 44 28c-4.2 6.1-9.5 9.2-16 9.2S16.2 34.1 12 28Z" stroke="#D8C7A0" stroke-width="2.1" stroke-linejoin="round"/>
-  <path d="M25 22.8 33.5 28 25 33.2V22.8Z" fill="#AFC1B2"/>
-  <circle cx="39.2" cy="18.2" r="2" fill="#D8C7A0"/>
-  <text x="66" y="39" font-family="DM Sans, sans-serif" font-size="32" font-weight="650" letter-spacing="-1.5"><tspan fill="#F0EDE3">view</tspan><tspan fill="#D8C7A0">pay</tspan></text>
-</svg>

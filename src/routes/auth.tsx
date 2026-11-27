@@ -26,15 +26,15 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in or join — ViewPay" },
+      { title: "Sign in or join — Gig Nova" },
       {
         name: "description",
-        content: "Create a worldwide ViewPay account or sign in to your earning wallet.",
+        content: "Create a worldwide Gig Nova account or sign in to your earning wallet.",
       },
-      { property: "og:title", content: "Sign in or join — ViewPay" },
+      { property: "og:title", content: "Sign in or join — Gig Nova" },
       {
         property: "og:description",
-        content: "Create a worldwide ViewPay account or sign in to your earning wallet.",
+        content: "Create a worldwide Gig Nova account or sign in to your earning wallet.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

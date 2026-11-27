@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { BriefcaseBusiness, CheckCircle2, Clock3, LockKeyhole, Send } from "lucide-react";
@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
-      { title: "Available tasks â€” ViewPay" },
+      { title: "Available gigs - Gig Nova" },
       {
         name: "description",
         content: "Choose a task, follow its instructions and get paid when your work is approved.",
@@ -37,7 +37,7 @@ function TasksPage({ userId }: { userId: string }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("tasks")
-        .select("id,title,category,description,reward_kes,slots,claimed_count,status,created_at")
+        .select("id,title,category,task_type,description,reward_kes,slots,claimed_count,status,created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -110,10 +110,10 @@ function TasksPage({ userId }: { userId: string }) {
   return (
     <div className="space-y-6 pb-8">
       <header>
-        <p className="text-sm font-semibold text-primary">VIEWPAY MARKETPLACE</p>
-        <h1 className="mt-1 text-3xl font-extrabold">Choose a task</h1>
+        <p className="text-sm font-semibold text-primary">GIG NOVA MARKETPLACE</p>
+        <h1 className="mt-1 text-3xl font-extrabold">Choose a gig</h1>
         <p className="mt-2 text-muted-foreground">
-          Claim one available slot, follow the private instructions and submit your work. Approved
+          Claim an available spot, follow the private instructions and submit your work. Approved
           tasks add earnings to your wallet.
         </p>
       </header>
@@ -153,7 +153,13 @@ function TasksPage({ userId }: { userId: string }) {
               className="h-full rounded-2xl border border-border bg-card p-5 shadow-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Badge variant="secondary">{task.category}</Badge>
+                <Badge variant="secondary">
+                  {task.task_type === "ad"
+                    ? "Ad"
+                    : task.task_type === "account_subscription"
+                      ? "Account subscription"
+                      : task.category}
+                </Badge>
                 <span className="font-bold text-primary">{kes(task.reward_kes)}</span>
               </div>
               <h2 className="mt-3 text-xl font-bold">{task.title}</h2>
@@ -161,7 +167,9 @@ function TasksPage({ userId }: { userId: string }) {
                 {task.description}
               </p>
               <p className="mt-3 text-xs text-muted-foreground">
-                {available} of {task.slots} slots available
+                {task.task_type === "general"
+                  ? "One worker can claim this gig"
+                  : `${available} of ${task.slots} spots available · visible to everyone`}
               </p>
 
               {!claim || claim.status === "rejected" ? (

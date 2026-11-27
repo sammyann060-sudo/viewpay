@@ -27,6 +27,27 @@ create table if not exists public.profiles (
   pending_device_id uuid
 );
 
+-- `CREATE TABLE IF NOT EXISTS` does not add columns to an existing profiles
+-- table. Bring older project profiles up to the ViewPay shape before the
+-- indexes and auth trigger below use those fields.
+alter table public.profiles add column if not exists username text;
+alter table public.profiles add column if not exists country text not null default 'KE';
+alter table public.profiles add column if not exists phone text not null default '';
+alter table public.profiles add column if not exists phone_number text;
+alter table public.profiles add column if not exists phone_verified_at timestamptz;
+alter table public.profiles add column if not exists points integer not null default 0;
+alter table public.profiles add column if not exists referral_code text;
+alter table public.profiles add column if not exists referred_by uuid;
+alter table public.profiles add column if not exists referral_rewarded boolean not null default false;
+alter table public.profiles add column if not exists device_lock_required boolean not null default false;
+alter table public.profiles add column if not exists pending_device_id uuid;
+
+update public.profiles
+set referral_code = upper(substr(md5(id::text), 1, 8))
+where referral_code is null or btrim(referral_code) = '';
+
+alter table public.profiles alter column referral_code set not null;
+
 create unique index if not exists profiles_username_lower_key
   on public.profiles (lower(username)) where username is not null;
 create unique index if not exists profiles_referral_code_key

@@ -412,6 +412,7 @@ export type Database = {
           id: string;
           reward_kes: number;
           slots: number;
+          task_type: "general" | "ad" | "account_subscription";
           status: string;
           title: string;
           updated_at: string;
@@ -425,6 +426,7 @@ export type Database = {
           id?: string;
           reward_kes: number;
           slots: number;
+          task_type?: "general" | "ad" | "account_subscription";
           status?: string;
           title: string;
           updated_at?: string;
@@ -438,6 +440,7 @@ export type Database = {
           id?: string;
           reward_kes?: number;
           slots?: number;
+          task_type?: "general" | "ad" | "account_subscription";
           status?: string;
           title?: string;
           updated_at?: string;

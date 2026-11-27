@@ -10,15 +10,15 @@ import { COUNTRY_OPTIONS, errMsg, useSession } from "@/lib/viewpay";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
-      { title: "Your profile — ViewPay" },
+      { title: "Your profile — Gig Nova" },
       {
         name: "description",
-        content: "View your ViewPay account details and verification status.",
+        content: "View your Gig Nova account details and verification status.",
       },
-      { property: "og:title", content: "Your profile — ViewPay" },
+      { property: "og:title", content: "Your profile — Gig Nova" },
       {
         property: "og:description",
-        content: "View your ViewPay account details and verification status.",
+        content: "View your Gig Nova account details and verification status.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -85,7 +85,7 @@ function ProfilePage({ userId }: { userId: string }) {
         </div>
         <div className="min-w-0">
           <h2 className="break-words text-xl font-bold">
-            {profile.data.username ? `@${profile.data.username}` : "ViewPay member"}
+            {profile.data.username ? `@${profile.data.username}` : "Gig Nova member"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Member since{" "}

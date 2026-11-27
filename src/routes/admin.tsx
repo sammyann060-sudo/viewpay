@@ -7,8 +7,8 @@ import { useSession } from "@/lib/viewpay";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin workspace — ViewPay" },
-      { name: "description", content: "Manage ViewPay accounts, payouts and platform operations." },
+      { title: "Admin workspace — Gig Nova" },
+      { name: "description", content: "Manage Gig Nova accounts, payouts and platform operations." },
     ],
   }),
   component: AdminLayout,
@@ -41,7 +41,7 @@ function AdminLayout() {
         return (
           <div className="space-y-6 pb-10">
             <header className="border-b border-border pb-5">
-              <p className="text-sm font-semibold text-primary">VIEWPAY OPERATIONS</p>
+              <p className="text-sm font-semibold text-primary">GIG NOVA OPERATIONS</p>
               <h1 className="mt-1 text-3xl font-extrabold">Admin workspace</h1>
               <nav aria-label="Admin sections" className="mt-5 flex gap-2 overflow-x-auto pb-1">
                 {sections.map(([to, label]) => (

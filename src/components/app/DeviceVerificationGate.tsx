@@ -113,7 +113,7 @@ export function DeviceVerificationGate({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-5 py-10">
-      <p className="text-sm font-semibold text-primary">VIEWPAY SECURITY</p>
+      <p className="text-sm font-semibold text-primary">GIG NOVA SECURITY</p>
       <h1 className="mt-3 text-3xl font-extrabold">Verify this browser</h1>
       <p className="mt-2 text-muted-foreground">
         A new browser needs a verified contact before earning or cashing out.

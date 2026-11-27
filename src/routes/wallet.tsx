@@ -11,7 +11,7 @@ import { errMsg, formatKes, MPESA_MIN_KES } from "@/lib/viewpay";
 export const Route = createFileRoute("/wallet")({
   head: () => ({
     meta: [
-      { title: "Wallet — ViewPay" },
+      { title: "Wallet — Gig Nova" },
       { name: "description", content: "Your KES balance and M-Pesa payouts." },
     ],
   }),

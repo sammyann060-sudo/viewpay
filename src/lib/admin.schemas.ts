@@ -3,6 +3,7 @@ import { z } from "zod";
 export const marketplaceTaskSchema = z
   .object({
     title: z.string().trim().min(5).max(120),
+    task_type: z.enum(["general", "ad", "account_subscription"]),
     category: z.string().trim().min(2).max(48),
     description: z.string().trim().min(10).max(600),
     instructions: z.string().trim().min(10).max(10_000),
@@ -23,7 +24,14 @@ export const marketplaceTaskSchema = z
         code: "custom",
         path: ["instructions"],
         message:
-          "This task requests credentials, bulk third-party accounts or deceptive engagement, which ViewPay does not allow.",
+          "This task requests credentials, bulk third-party accounts or deceptive engagement, which Gig Nova does not allow.",
+      });
+    }
+    if (task.task_type === "general" && task.slots !== 1) {
+      context.addIssue({
+        code: "custom",
+        path: ["slots"],
+        message: "A general gig can only be claimed by one worker.",
       });
     }
   });

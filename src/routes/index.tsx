@@ -6,13 +6,13 @@ import { BrandLogo } from "@/components/app/Brand";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ViewPay — Find flexible online tasks" },
+      { title: "Gig Nova — Find flexible gigs" },
       {
         name: "description",
         content:
           "Choose flexible online tasks, submit proof of your work and get paid when it is approved.",
       },
-      { property: "og:title", content: "ViewPay — Find flexible online tasks" },
+      { property: "og:title", content: "Gig Nova — Find flexible gigs" },
       {
         property: "og:description",
         content: "Choose a task, submit your work and earn when it is approved.",
@@ -42,17 +42,22 @@ const steps = [
 function Landing() {
   return (
     <main className="mx-auto max-w-lg px-5 py-8">
-      <BrandLogo className="h-14 w-auto" />
+      <BrandLogo />
+      <img
+        src="/gignova-logo.png"
+        alt="Gig Nova"
+        className="mt-8 h-44 w-44 rounded-3xl object-cover shadow-glow"
+      />
       <section className="pt-16 pb-12">
         <p className="mb-4 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
           Clear rewards for completed work
         </p>
         <h1 className="text-5xl font-extrabold leading-[1.02] tracking-tight">
-          Good work <br />
+          Find a gig. <br />
           deserves <span className="text-primary">good pay.</span>
         </h1>
         <p className="mt-5 text-lg text-muted-foreground">
-          Complete real tasks, submit your work for review and earn a clear reward when it is
+          Browse public ads and one-person gigs, submit your work for review and earn when it is
           approved.
         </p>
         <div className="mt-8 flex gap-3">

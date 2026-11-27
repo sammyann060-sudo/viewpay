@@ -1,27 +1,71 @@
 -- Move the live wallet to KES and add client-referral agents.
 -- Historical ad tables are renamed and retained for audit; they are no longer exposed to clients.
 
+-- Some existing projects already have a `profiles` table from another app.
+-- Add the ViewPay fields before the legacy points-to-KES conversion. Existing
+-- `ai_credits` (or similar product credits) are not cash and are not converted.
+alter table public.profiles add column if not exists country text not null default 'KE';
+alter table public.profiles add column if not exists points integer not null default 0;
+alter table public.profiles add column if not exists referral_code text;
+alter table public.profiles add column if not exists referred_by uuid;
+alter table public.profiles add column if not exists referral_rewarded boolean not null default false;
+alter table public.profiles add column if not exists phone_number text;
+alter table public.profiles add column if not exists phone_verified_at timestamptz;
+alter table public.profiles add column if not exists device_lock_required boolean not null default false;
+alter table public.profiles add column if not exists pending_device_id uuid;
+
+update public.profiles
+set referral_code = upper(substr(md5(id::text), 1, 8))
+where referral_code is null or btrim(referral_code) = '';
+alter table public.profiles alter column referral_code set not null;
+
 drop function if exists public.complete_ad_view(uuid, integer);
 drop function if exists public.start_ad_view(uuid);
 drop function if exists public.daily_ad_limit();
 drop function if exists public.request_payout(text, text, integer);
 
-alter table public.profiles add column balance_kes numeric(14, 2) not null default 0;
+alter table public.profiles add column if not exists balance_kes numeric(14, 2) not null default 0;
 update public.profiles set balance_kes = round(points * 0.2, 2);
 alter table public.profiles drop column points;
 alter table public.profiles drop column referral_rewarded;
 
-update public.wallet_transactions
-set amount = case
-      when points_delta <> 0 then round(points_delta * 0.2, 2)
-      else coalesce(amount, 0)
-    end,
-    currency = 'KES';
-alter table public.wallet_transactions drop column points_delta;
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'wallet_transactions'
+      and column_name = 'points_delta'
+  ) then
+    execute $sql$
+      update public.wallet_transactions
+      set amount = case
+            when points_delta <> 0 then round(points_delta * 0.2, 2)
+            else coalesce(amount, 0)
+          end,
+          currency = 'KES'
+    $sql$;
+  else
+    -- This project already stores wallet movements as amounts. Preserve them;
+    -- there is no points value available to convert.
+    update public.wallet_transactions set currency = 'KES';
+  end if;
+end $$;
+alter table public.wallet_transactions drop column if exists points_delta;
 
-update public.payouts
-set amount = round(points * 0.2, 2), currency = 'KES';
-alter table public.payouts drop column points;
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'payouts'
+      and column_name = 'points'
+  ) then
+    execute 'update public.payouts set amount = round(points * 0.2, 2), currency = ''KES''';
+  else
+    -- Keep existing monetary amounts when this is already an amount-based schema.
+    update public.payouts set currency = 'KES';
+  end if;
+end $$;
+alter table public.payouts drop column if exists points;
 alter table public.payouts drop constraint if exists payouts_currency_check;
 alter table public.payouts add constraint payouts_currency_kes_only check (currency = 'KES');
 

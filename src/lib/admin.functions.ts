@@ -395,6 +395,7 @@ export const createMarketplaceTask = createServerFn({ method: "POST" })
       .insert({
         created_by: context.userId,
         title: data.title,
+        task_type: data.task_type,
         category: data.category,
         description: data.description,
         reward_kes: data.reward_kes,

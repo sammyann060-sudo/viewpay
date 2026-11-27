@@ -77,17 +77,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ViewPay" },
+      { title: "Gig Nova" },
       {
         name: "description",
         content:
-          "Choose online tasks, submit your work for review and get paid when it is approved.",
+          "Find public ads and gigs, complete work and earn when your submission is approved.",
       },
-      { property: "og:title", content: "ViewPay" },
+      { property: "og:title", content: "Gig Nova" },
       {
         property: "og:description",
         content:
-          "Choose online tasks, submit your work for review and get paid when it is approved.",
+          "Find public ads and gigs, complete work and earn when your submission is approved.",
       },
       { name: "theme-color", content: "#170014" },
       { property: "og:type", content: "website" },
@@ -98,9 +98,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "512x512" },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "icon", href: "/gignova-icon.png", type: "image/png", sizes: "1254x1254" },
+      { rel: "apple-touch-icon", href: "/gignova-icon.png", sizes: "1254x1254" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

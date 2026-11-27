@@ -193,7 +193,7 @@ export function Shell({ children }: { children: (userId: string) => ReactNode })
     >
       {!isAdminPath && (
         <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-card/60 p-5 lg:flex">
-          <Link to="/tasks" aria-label="ViewPay home" className="mb-8">
+          <Link to="/tasks" aria-label="Gig Nova home" className="mb-8">
             <BrandLogo className="h-10 w-auto" />
           </Link>
           <nav className="space-y-1">
@@ -224,7 +224,7 @@ export function Shell({ children }: { children: (userId: string) => ReactNode })
         <header className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-3 sm:px-6 lg:px-8">
           <Link
             to="/tasks"
-            aria-label="ViewPay home"
+            aria-label="Gig Nova home"
             className="inline-flex items-center lg:hidden"
           >
             <BrandLogo className="h-9 w-auto" />
@@ -282,7 +282,7 @@ export function Shell({ children }: { children: (userId: string) => ReactNode })
           {platformSettings.data?.maintenance_mode && !isAdmin.data ? (
             <section className="mx-auto max-w-2xl border-y border-accent py-10 text-center">
               <p className="text-sm font-semibold text-accent">MAINTENANCE</p>
-              <h1 className="mt-2 text-2xl font-extrabold">ViewPay is temporarily unavailable</h1>
+              <h1 className="mt-2 text-2xl font-extrabold">Gig Nova is temporarily unavailable</h1>
               <p className="mt-2 text-muted-foreground">
                 Your account and balance are safe. Please check back soon.
                 {platformSettings.data.support_email ? (

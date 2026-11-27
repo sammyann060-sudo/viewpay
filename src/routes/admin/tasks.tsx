@@ -29,6 +29,7 @@ function MarketplaceAdminPage() {
   const review = useServerFn(reviewMarketplaceTask);
   const data = useQuery({ queryKey: ["marketplace-admin"], queryFn: () => load() });
   const [creating, setCreating] = useState(false);
+  const [taskType, setTaskType] = useState<"general" | "ad" | "account_subscription">("general");
   const [busy, setBusy] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -41,12 +42,16 @@ function MarketplaceAdminPage() {
       await create({
         data: {
           title: String(values.get("title") ?? ""),
+          task_type: String(values.get("task_type") ?? "general") as
+            | "general"
+            | "ad"
+            | "account_subscription",
           category: String(values.get("category") ?? "General"),
           description: String(values.get("description") ?? ""),
           instructions: String(values.get("instructions") ?? ""),
           proof_prompt: String(values.get("proof_prompt") ?? ""),
           reward_kes: Number(values.get("reward_kes")),
-          slots: Number(values.get("slots")),
+          slots: taskType === "general" ? 1 : Number(values.get("slots")),
         },
       });
       form.reset();
@@ -132,7 +137,22 @@ function MarketplaceAdminPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-2 text-sm font-semibold">
-            Task title
+            Gig type
+            <select
+              name="task_type"
+              value={taskType}
+              onChange={(event) =>
+                setTaskType(event.target.value as "general" | "ad" | "account_subscription")
+              }
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="general">General gig · one worker</option>
+              <option value="ad">Public ad · multiple workers</option>
+              <option value="account_subscription">Account subscription · one spot per worker</option>
+            </select>
+          </label>
+          <label className="space-y-2 text-sm font-semibold">
+            Gig title
             <Input
               name="title"
               required
@@ -197,21 +217,27 @@ function MarketplaceAdminPage() {
               placeholder="10"
             />
           </label>
-          <label className="space-y-2 text-sm font-semibold">
-            Available slots
-            <Input
-              name="slots"
-              type="number"
-              min={1}
-              max={10000}
-              step={1}
-              required
-              placeholder="20"
-            />
-          </label>
+          {taskType === "general" ? (
+            <div className="rounded-xl bg-secondary/60 p-3 text-sm text-muted-foreground">
+              A general gig is reserved for one worker.
+            </div>
+          ) : (
+            <label className="space-y-2 text-sm font-semibold">
+              Available spots
+              <Input
+                name="slots"
+                type="number"
+                min={1}
+                max={10000}
+                step={1}
+                required
+                placeholder="20"
+              />
+            </label>
+          )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Total commitment: reward per task × available slots. Approval credits the worker’s ViewPay
+          Total commitment: reward per task × available slots. Approval credits the worker’s Gig Nova
           balance; cash payouts are a separate admin workflow.
         </p>
         <Button disabled={creating} type="submit">
@@ -300,7 +326,7 @@ function MarketplaceAdminPage() {
               <div className="min-w-0">
                 <h4 className="truncate font-bold">{task.title}</h4>
                 <p className="text-sm text-muted-foreground">
-                  {task.category} · {task.claimed_count}/{task.slots} slots ·{" "}
+                  {task.task_type === "ad" ? "Public ad" : task.task_type === "account_subscription" ? "Account subscription" : "General gig"} · {task.claimed_count}/{task.slots} spots ·{" "}
                   {money(task.reward_kes)} each
                 </p>
               </div>

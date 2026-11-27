@@ -165,7 +165,8 @@ function ProfilePage({ userId }: { userId: string }) {
         <div>
           <p className="text-sm text-muted-foreground">Available balance</p>
           <p className="mt-1 font-semibold tabular">
-            {profile.data.points.toLocaleString()} points
+            KSh{" "}
+            {Number(profile.data.balance_kes).toLocaleString("en-KE", { minimumFractionDigits: 2 })}
           </p>
         </div>
         <div>

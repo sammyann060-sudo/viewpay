@@ -8,6 +8,39 @@ export type Database = {
   };
   public: {
     Tables: {
+      agent_profiles: {
+        Row: { user_id: string; active: boolean; assigned_by: string; created_at: string };
+        Insert: { user_id: string; active?: boolean; assigned_by: string; created_at?: string };
+        Update: { user_id?: string; active?: boolean; assigned_by?: string; created_at?: string };
+        Relationships: [];
+      };
+      agent_client_commissions: {
+        Row: {
+          id: string;
+          agent_id: string;
+          client_id: string;
+          qualifying_claim_id: string;
+          amount_kes: number;
+          credited_at: string;
+        };
+        Insert: {
+          id?: string;
+          agent_id: string;
+          client_id: string;
+          qualifying_claim_id: string;
+          amount_kes?: number;
+          credited_at?: string;
+        };
+        Update: {
+          id?: string;
+          agent_id?: string;
+          client_id?: string;
+          qualifying_claim_id?: string;
+          amount_kes?: number;
+          credited_at?: string;
+        };
+        Relationships: [];
+      };
       ad_views: {
         Row: {
           ad_id: string;
@@ -221,7 +254,6 @@ export type Database = {
           destination: string;
           id: string;
           method: string;
-          points: number;
           processed_at: string | null;
           reference: string | null;
           status: string;
@@ -234,7 +266,6 @@ export type Database = {
           destination: string;
           id?: string;
           method: string;
-          points: number;
           processed_at?: string | null;
           reference?: string | null;
           status?: string;
@@ -247,7 +278,6 @@ export type Database = {
           destination?: string;
           id?: string;
           method?: string;
-          points?: number;
           processed_at?: string | null;
           reference?: string | null;
           status?: string;
@@ -284,6 +314,7 @@ export type Database = {
       };
       profiles: {
         Row: {
+          balance_kes: number;
           country: string;
           created_at: string;
           device_lock_required: boolean;
@@ -292,13 +323,12 @@ export type Database = {
           phone: string;
           phone_number: string | null;
           phone_verified_at: string | null;
-          points: number;
           referral_code: string;
-          referral_rewarded: boolean;
           referred_by: string | null;
           username: string | null;
         };
         Insert: {
+          balance_kes?: number;
           country?: string;
           created_at?: string;
           device_lock_required?: boolean;
@@ -307,13 +337,12 @@ export type Database = {
           phone: string;
           phone_number?: string | null;
           phone_verified_at?: string | null;
-          points?: number;
           referral_code: string;
-          referral_rewarded?: boolean;
           referred_by?: string | null;
           username?: string | null;
         };
         Update: {
+          balance_kes?: number;
           country?: string;
           created_at?: string;
           device_lock_required?: boolean;
@@ -322,9 +351,7 @@ export type Database = {
           phone?: string;
           phone_number?: string | null;
           phone_verified_at?: string | null;
-          points?: number;
           referral_code?: string;
-          referral_rewarded?: boolean;
           referred_by?: string | null;
           username?: string | null;
         };
@@ -443,7 +470,6 @@ export type Database = {
           id: string;
           kind: string;
           note: string | null;
-          points_delta: number;
           reference_id: string | null;
           user_id: string;
         };
@@ -454,7 +480,6 @@ export type Database = {
           id?: string;
           kind: string;
           note?: string | null;
-          points_delta: number;
           reference_id?: string | null;
           user_id: string;
         };
@@ -465,7 +490,6 @@ export type Database = {
           id?: string;
           kind?: string;
           note?: string | null;
-          points_delta?: number;
           reference_id?: string | null;
           user_id?: string;
         };
@@ -476,15 +500,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      complete_ad_view: {
-        Args: { _answer: number; _view_id: string };
-        Returns: Json;
-      };
       complete_device_verification: {
         Args: { _device_id: string };
         Returns: undefined;
       };
-      daily_ad_limit: { Args: never; Returns: number };
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"];
@@ -508,10 +527,9 @@ export type Database = {
         Returns: undefined;
       };
       request_payout: {
-        Args: { _destination: string; _method: string; _points: number };
+        Args: { _amount_kes: number; _destination: string };
         Returns: string;
       };
-      start_ad_view: { Args: { _ad_id: string }; Returns: string };
       sync_verified_phone: { Args: never; Returns: Json };
     };
     Enums: {

@@ -23,7 +23,6 @@ describe("App routing", () => {
     "/admin/payouts",
     "/admin/transactions",
     "/admin/settings",
-    "/admin/payroll",
   ])("matches %s instead of falling back to not found", (path) => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
 

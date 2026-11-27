@@ -25,7 +25,7 @@ function PayoutsPage() {
   async function act(id: string, status: "paid" | "rejected") {
     if (
       status === "rejected" &&
-      !window.confirm("Reject this payout and restore the points to the member's balance?")
+      !window.confirm("Reject this payout and restore the KES amount to the member's balance?")
     ) {
       return;
     }
@@ -40,7 +40,7 @@ function PayoutsPage() {
     try {
       await process({ data: { id, status, reference: reference.trim() } });
       toast.success(
-        status === "paid" ? "Payout marked as paid" : "Payout rejected and points refunded",
+        status === "paid" ? "Payout marked as paid" : "Payout rejected and KES refunded",
       );
       await queryClient.invalidateQueries({ queryKey: ["admin-payouts"] });
       await queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
@@ -60,7 +60,7 @@ function PayoutsPage() {
       <h2 className="text-xl font-bold">Payout requests</h2>
       <p className="mt-1 mb-4 text-sm text-muted-foreground">
         Verify each transfer with your payment provider before marking it paid. Rejections restore
-        the user's points.
+        the user's KES balance.
       </p>
       {rows.length === 0 ? (
         <AdminEmpty>No payout requests have been recorded.</AdminEmpty>
@@ -72,13 +72,9 @@ function PayoutsPage() {
                 <div>
                   <h3 className="font-bold">
                     {formatAdminMoney(payout.amount, payout.currency)}{" "}
-                    <span className="font-normal text-muted-foreground">
-                      · {payout.method === "mpesa" ? "M-Pesa" : "USDT"}
-                    </span>
+                    <span className="font-normal text-muted-foreground">· M-Pesa</span>
                   </h3>
-                  <p className="mt-1 text-sm">
-                    {payout.account} · {payout.points.toLocaleString()} points
-                  </p>
+                  <p className="mt-1 text-sm">{payout.account}</p>
                 </div>
                 <AdminStatus status={payout.status} />
               </div>

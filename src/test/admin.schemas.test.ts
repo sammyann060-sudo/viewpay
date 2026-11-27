@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  agentCommissionStatusSchema,
-  agentSchema,
+  agentStatusSchema,
   hasAdminRole,
   marketplaceTaskSchema,
   payoutActionSchema,
@@ -13,29 +12,12 @@ describe("admin workspace rules", () => {
     expect(hasAdminRole(["user"])).toBe(false);
   });
 
-  it("keeps each agent's commission unit freely configurable", () => {
-    const agent = agentSchema.parse({
-      name: "Example Agent",
-      email: "",
-      phone: "",
-      country: "us",
-      commission_unit: "Verified referrals",
-      commission_rate: "2.5",
-      currency: "USD",
-    });
-    expect(agent.commission_unit).toBe("Verified referrals");
-    expect(agent.country).toBe("US");
-    expect(() =>
-      agentSchema.parse({
-        name: "Example Agent",
-        email: "",
-        phone: "",
-        country: "US",
-        commission_unit: "",
-        commission_rate: "2.5",
-        currency: "USD",
-      }),
-    ).toThrow();
+  it("validates selecting an existing member as an agent", () => {
+    expect(
+      agentStatusSchema.parse({ user_id: "db209318-f03a-4c3a-8614-2e29e8303880", active: true })
+        .active,
+    ).toBe(true);
+    expect(() => agentStatusSchema.parse({ user_id: "invalid", active: true })).toThrow();
   });
 
   it("rejects tasks requesting mass account creation or credentials", () => {
@@ -62,23 +44,6 @@ describe("admin workspace rules", () => {
       slots: "20",
     });
     expect(task.reward_kes * task.slots).toBe(200);
-  });
-
-  it("does not allow a paid commission to be reopened", () => {
-    expect(
-      agentCommissionStatusSchema.parse({
-        id: "db209318-f03a-4c3a-8614-2e29e8303880",
-        status: "paid",
-        reference: "TX-1",
-      }).status,
-    ).toBe("paid");
-    expect(() =>
-      agentCommissionStatusSchema.parse({
-        id: "db209318-f03a-4c3a-8614-2e29e8303880",
-        status: "pending",
-        reference: "",
-      }),
-    ).toThrow();
   });
 
   it("requires a transfer reference before a payout can be marked paid", () => {

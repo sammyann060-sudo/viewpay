@@ -21,7 +21,6 @@ const sections = [
   ["/admin/payouts", "Payouts"],
   ["/admin/transactions", "Transactions"],
   ["/admin/settings", "Settings"],
-  ["/admin/payroll", "Agent payroll"],
 ] as const;
 
 function AdminLayout() {

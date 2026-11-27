@@ -61,13 +61,11 @@ function TransactionsPage() {
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="text-xs uppercase text-muted-foreground">
               <tr>
-                {["Date", "Account", "Activity", "Points", "Amount", "Status", "Reference"].map(
-                  (label) => (
-                    <th key={label} className="px-3 py-3 font-semibold">
-                      {label}
-                    </th>
-                  ),
-                )}
+                {["Date", "Account", "Activity", "KES", "Status", "Reference"].map((label) => (
+                  <th key={label} className="px-3 py-3 font-semibold">
+                    {label}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -78,10 +76,6 @@ function TransactionsPage() {
                   </td>
                   <td className="px-3 py-3 font-semibold">{row.account}</td>
                   <td className="px-3 py-3 capitalize">{row.kind}</td>
-                  <td className="px-3 py-3 tabular">
-                    {row.points > 0 ? "+" : ""}
-                    {row.points.toLocaleString()}
-                  </td>
                   <td className="px-3 py-3 tabular">
                     {row.amount === null
                       ? "—"

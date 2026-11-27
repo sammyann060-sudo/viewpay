@@ -4,16 +4,13 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import {
-  agentCommissionSchema,
-  agentCommissionStatusSchema,
-  agentSchema,
+  agentStatusSchema,
   hasAdminRole,
   marketplaceTaskSchema,
   marketplaceTaskStatusSchema,
   payoutActionSchema,
   platformSettingsSchema,
   taskReviewSchema,
-  updateAgentSchema,
 } from "@/lib/admin.schemas";
 
 type PageResult<T> = { data: T[] | null; error: { message: string } | null };
@@ -67,13 +64,20 @@ export const getAdminUsers = createServerFn({ method: "GET" })
         await supabaseAdmin
           .from("profiles")
           .select(
-            "id, username, country, phone, phone_number, phone_verified_at, points, created_at, device_lock_required",
+            "id, username, country, phone, phone_number, phone_verified_at, balance_kes, created_at, device_lock_required",
           )
           .order("created_at", { ascending: false })
           .range(from, to),
     );
-    const authUsers = await listAuthUsers(supabaseAdmin);
+    const [authUsers, agents] = await Promise.all([
+      listAuthUsers(supabaseAdmin),
+      fetchAllPages(
+        async (from, to) =>
+          await supabaseAdmin.from("agent_profiles").select("user_id,active").range(from, to),
+      ),
+    ]);
     const authById = new Map(authUsers.map((user) => [user.id, user]));
+    const agentById = new Map(agents.map((agent) => [agent.user_id, agent.active]));
 
     return profiles.map((profile) => {
       const authUser = authById.get(profile.id);
@@ -85,7 +89,8 @@ export const getAdminUsers = createServerFn({ method: "GET" })
         country: profile.country,
         phone: profile.phone_number ?? profile.phone,
         phoneVerified: Boolean(profile.phone_verified_at),
-        points: profile.points,
+        balanceKes: Number(profile.balance_kes),
+        isAgent: agentById.get(profile.id) === true,
         createdAt: profile.created_at,
         deviceVerificationRequired: profile.device_lock_required,
       };
@@ -97,9 +102,10 @@ export const getAdminOverview = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [profiles, tasks, claims, payouts, commissions] = await Promise.all([
+    const [profiles, tasks, claims, payouts, activeAgents, commissions] = await Promise.all([
       fetchAllPages(
-        async (from, to) => await supabaseAdmin.from("profiles").select("points").range(from, to),
+        async (from, to) =>
+          await supabaseAdmin.from("profiles").select("balance_kes").range(from, to),
       ),
       fetchAllPages(
         async (from, to) =>
@@ -119,13 +125,21 @@ export const getAdminOverview = createServerFn({ method: "GET" })
       fetchAllPages(
         async (from, to) =>
           await supabaseAdmin
-            .from("agent_commissions")
-            .select("amount, units, rate, currency, status")
+            .from("agent_profiles")
+            .select("user_id")
+            .eq("active", true)
             .range(from, to),
+      ),
+      fetchAllPages(
+        async (from, to) =>
+          await supabaseAdmin.from("agent_client_commissions").select("amount_kes").range(from, to),
       ),
     ]);
 
-    const pointsOutstanding = profiles.reduce((total, profile) => total + profile.points, 0);
+    const walletLiabilityKes = profiles.reduce(
+      (total, profile) => total + Number(profile.balance_kes),
+      0,
+    );
     const taskById = new Map(tasks.map((task) => [task.id, task]));
     const activeClaimCounts = new Map<string, number>();
     for (const claim of claims) {
@@ -156,14 +170,6 @@ export const getAdminOverview = createServerFn({ method: "GET" })
       }
       return totals;
     };
-    const pendingPayrollByCurrency: Record<string, number> = {};
-    for (const commission of commissions) {
-      if (commission.status !== "pending") continue;
-      const amount = commission.amount ?? commission.units * commission.rate;
-      pendingPayrollByCurrency[commission.currency] =
-        (pendingPayrollByCurrency[commission.currency] ?? 0) + Number(amount);
-    }
-
     return {
       accountCount: profiles.length,
       taskCount: tasks.length,
@@ -171,11 +177,11 @@ export const getAdminOverview = createServerFn({ method: "GET" })
       approvedTaskCount: approvedTasks.length,
       approvedRewardsKes,
       postedTaskBudgetKes,
-      pointsOutstanding,
-      walletLiabilityEstimateKes: pointsOutstanding * 0.2,
+      walletLiabilityKes,
       pendingPayoutsByCurrency: sumByCurrency(payouts, "pending"),
       paidPayoutsByCurrency: sumByCurrency(payouts, "paid"),
-      pendingPayrollByCurrency,
+      activeAgentCount: activeAgents.length,
+      agentCommissionsKes: commissions.reduce((sum, item) => sum + item.amount_kes, 0),
     };
   });
 
@@ -187,12 +193,12 @@ export const getAdminTransactions = createServerFn({ method: "GET" })
     const [payouts, transactions, profiles] = await Promise.all([
       supabaseAdmin
         .from("payouts")
-        .select("*")
+        .select("id,user_id,method,amount,currency,status,reference,created_at")
         .order("created_at", { ascending: false })
         .limit(200),
       supabaseAdmin
         .from("wallet_transactions")
-        .select("*")
+        .select("id,user_id,kind,amount,currency,note,reference_id,created_at")
         .order("created_at", { ascending: false })
         .limit(200),
       fetchAllPages(
@@ -210,9 +216,8 @@ export const getAdminTransactions = createServerFn({ method: "GET" })
         id: `payout-${payout.id}`,
         userId: payout.user_id,
         account: names.get(payout.user_id) ?? payout.user_id.slice(0, 8),
-        kind: `${payout.method === "mpesa" ? "M-Pesa" : "USDT"} payout`,
-        points: -payout.points,
-        amount: Number(payout.amount),
+        kind: payout.method === "mpesa" ? "M-Pesa payout" : "Legacy payout",
+        amount: -Number(payout.amount),
         currency: payout.currency,
         status: payout.status,
         reference: payout.reference,
@@ -224,7 +229,6 @@ export const getAdminTransactions = createServerFn({ method: "GET" })
         userId: transaction.user_id,
         account: names.get(transaction.user_id) ?? transaction.user_id.slice(0, 8),
         kind: transaction.kind.replaceAll("_", " "),
-        points: transaction.points_delta,
         amount: transaction.amount === null ? null : Number(transaction.amount),
         currency: transaction.currency,
         status: "recorded",
@@ -246,7 +250,7 @@ export const getAdminPayouts = createServerFn({ method: "GET" })
         await supabaseAdmin
           .from("payouts")
           .select(
-            "id, user_id, method, destination, amount, currency, points, status, reference, created_at",
+            "id, user_id, method, destination, amount, currency, status, reference, created_at",
           )
           .order("created_at", { ascending: false })
           .range(from, to),
@@ -332,94 +336,22 @@ export const saveAdminSettings = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const getAdminPayroll = createServerFn({ method: "GET" })
+export const setUserAgentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [agents, commissions] = await Promise.all([
-      supabaseAdmin.from("admin_agents").select("*").order("name"),
-      supabaseAdmin
-        .from("agent_commissions")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(500),
-    ]);
-    if (agents.error) throw new Error(agents.error.message);
-    if (commissions.error) throw new Error(commissions.error.message);
-    return { agents: agents.data ?? [], commissions: commissions.data ?? [] };
-  });
-
-export const createAdminAgent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((input) => agentSchema.parse(input))
+  .validator((input) => agentStatusSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("admin_agents").insert({
-      name: data.name,
-      email: data.email || null,
-      phone: data.phone || null,
-      country: data.country,
-      commission_unit: data.commission_unit,
-      commission_rate: data.commission_rate,
-      currency: data.currency,
-    });
+    const { error } = await supabaseAdmin.from("agent_profiles").upsert(
+      {
+        user_id: data.user_id,
+        active: data.active,
+        assigned_by: context.userId,
+      },
+      { onConflict: "user_id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
-  });
-
-export const updateAdminAgent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((input) => updateAgentSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { id, active, commission_unit, commission_rate } = data;
-    const { error } = await supabaseAdmin
-      .from("admin_agents")
-      .update({
-        ...(active === undefined ? {} : { active }),
-        ...(commission_unit === undefined ? {} : { commission_unit }),
-        ...(commission_rate === undefined ? {} : { commission_rate }),
-      })
-      .eq("id", id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-export const recordAgentCommission = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((input) => agentCommissionSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: agent, error: agentError } = await supabaseAdmin
-      .from("admin_agents")
-      .select("commission_unit, commission_rate, currency, active")
-      .eq("id", data.agent_id)
-      .single();
-    if (agentError || !agent) throw new Error(agentError?.message ?? "Agent not found");
-    if (!agent.active) throw new Error("Activate this agent before recording a commission");
-    const amount = Number((data.units * agent.commission_rate).toFixed(2));
-    const { data: commission, error } = await supabaseAdmin
-      .from("agent_commissions")
-      .insert({
-        agent_id: data.agent_id,
-        period_start: data.period_start,
-        period_end: data.period_end,
-        units: data.units,
-        unit_label: agent.commission_unit,
-        rate: agent.commission_rate,
-        currency: agent.currency,
-        status: "pending",
-        note: data.note || null,
-        created_by: context.userId,
-      })
-      .select("amount")
-      .single();
-    if (error) throw new Error(error.message);
-    return { ok: true, amount: Number(commission.amount ?? amount) };
   });
 
 export const getMarketplaceAdminData = createServerFn({ method: "GET" })
@@ -510,27 +442,5 @@ export const reviewMarketplaceTask = createServerFn({ method: "POST" })
       _admin_note: data.admin_note || null,
     });
     if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-export const updateAgentCommissionStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((input) => agentCommissionStatusSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: updated, error } = await supabaseAdmin
-      .from("agent_commissions")
-      .update({
-        status: "paid",
-        reference: data.reference || null,
-        paid_at: data.status === "paid" ? new Date().toISOString() : null,
-      })
-      .eq("id", data.id)
-      .eq("status", "pending")
-      .select("id")
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!updated) throw new Error("Only pending commissions can be marked paid");
     return { ok: true };
   });

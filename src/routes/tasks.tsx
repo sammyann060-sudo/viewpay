@@ -142,7 +142,7 @@ function TasksPage({ userId }: { userId: string }) {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
         {tasks.data?.map((task) => {
           const claim = claimByTask.get(task.id);
           const taskInstructions = instructionsByTask.get(task.id);
@@ -150,7 +150,7 @@ function TasksPage({ userId }: { userId: string }) {
           return (
             <article
               key={task.id}
-              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+              className="h-full rounded-2xl border border-border bg-card p-5 shadow-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <Badge variant="secondary">{task.category}</Badge>

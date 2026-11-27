@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AgentRouteImport } from './routes/agent'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EarnRouteImport } from './routes/earn'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -20,7 +21,6 @@ import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminPayoutsRouteImport } from './routes/admin/payouts'
-import { Route as AdminPayrollRouteImport } from './routes/admin/payroll'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminTasksRouteImport } from './routes/admin/tasks'
 import { Route as AdminTransactionsRouteImport } from './routes/admin/transactions'
@@ -34,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentRoute = AgentRouteImport.update({
+  id: '/agent',
+  path: '/agent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -81,11 +86,6 @@ const AdminPayoutsRoute = AdminPayoutsRouteImport.update({
   path: '/payouts',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminPayrollRoute = AdminPayrollRouteImport.update({
-  id: '/payroll',
-  path: '/payroll',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -110,6 +110,7 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/agent': typeof AgentRoute
   '/auth': typeof AuthRoute
   '/earn': typeof EarnRoute
   '/history': typeof HistoryRoute
@@ -118,7 +119,6 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/wallet': typeof WalletRoute
   '/admin/payouts': typeof AdminPayoutsRoute
-  '/admin/payroll': typeof AdminPayrollRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/tasks': typeof AdminTasksRoute
   '/admin/transactions': typeof AdminTransactionsRoute
@@ -127,6 +127,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agent': typeof AgentRoute
   '/auth': typeof AuthRoute
   '/earn': typeof EarnRoute
   '/history': typeof HistoryRoute
@@ -135,7 +136,6 @@ export interface FileRoutesByTo {
   '/tasks': typeof TasksRoute
   '/wallet': typeof WalletRoute
   '/admin/payouts': typeof AdminPayoutsRoute
-  '/admin/payroll': typeof AdminPayrollRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/tasks': typeof AdminTasksRoute
   '/admin/transactions': typeof AdminTransactionsRoute
@@ -146,6 +146,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/agent': typeof AgentRoute
   '/auth': typeof AuthRoute
   '/earn': typeof EarnRoute
   '/history': typeof HistoryRoute
@@ -154,7 +155,6 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/wallet': typeof WalletRoute
   '/admin/payouts': typeof AdminPayoutsRoute
-  '/admin/payroll': typeof AdminPayrollRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/tasks': typeof AdminTasksRoute
   '/admin/transactions': typeof AdminTransactionsRoute
@@ -166,6 +166,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/agent'
     | '/auth'
     | '/earn'
     | '/history'
@@ -174,7 +175,6 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/wallet'
     | '/admin/payouts'
-    | '/admin/payroll'
     | '/admin/settings'
     | '/admin/tasks'
     | '/admin/transactions'
@@ -183,6 +183,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agent'
     | '/auth'
     | '/earn'
     | '/history'
@@ -191,7 +192,6 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/wallet'
     | '/admin/payouts'
-    | '/admin/payroll'
     | '/admin/settings'
     | '/admin/tasks'
     | '/admin/transactions'
@@ -201,6 +201,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/agent'
     | '/auth'
     | '/earn'
     | '/history'
@@ -209,7 +210,6 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/wallet'
     | '/admin/payouts'
-    | '/admin/payroll'
     | '/admin/settings'
     | '/admin/tasks'
     | '/admin/transactions'
@@ -220,6 +220,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AgentRoute: typeof AgentRoute
   AuthRoute: typeof AuthRoute
   EarnRoute: typeof EarnRoute
   HistoryRoute: typeof HistoryRoute
@@ -243,6 +244,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent': {
+      id: '/agent'
+      path: '/agent'
+      fullPath: '/agent'
+      preLoaderRoute: typeof AgentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -308,13 +316,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPayoutsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/payroll': {
-      id: '/admin/payroll'
-      path: '/payroll'
-      fullPath: '/admin/payroll'
-      preLoaderRoute: typeof AdminPayrollRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/settings': {
       id: '/admin/settings'
       path: '/settings'
@@ -348,7 +349,6 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminPayoutsRoute: typeof AdminPayoutsRoute
-  AdminPayrollRoute: typeof AdminPayrollRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTasksRoute: typeof AdminTasksRoute
   AdminTransactionsRoute: typeof AdminTransactionsRoute
@@ -358,7 +358,6 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminPayoutsRoute: AdminPayoutsRoute,
-  AdminPayrollRoute: AdminPayrollRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTasksRoute: AdminTasksRoute,
   AdminTransactionsRoute: AdminTransactionsRoute,
@@ -371,6 +370,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AgentRoute: AgentRoute,
   AuthRoute: AuthRoute,
   EarnRoute: EarnRoute,
   HistoryRoute: HistoryRoute,

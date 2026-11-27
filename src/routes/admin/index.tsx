@@ -46,13 +46,14 @@ function OverviewPage() {
         />
         <AdminMetric
           label="Wallet balances"
-          value={formatAdminMoney(data.walletLiabilityEstimateKes, "KES")}
-          detail={`${data.pointsOutstanding.toLocaleString()} points`}
+          value={formatAdminMoney(data.walletLiabilityKes, "KES")}
+          detail="KES only"
         />
         <AdminMetric label="Pending payouts" value={moneyTotals(data.pendingPayoutsByCurrency)} />
         <AdminMetric
-          label="Pending agent payroll"
-          value={moneyTotals(data.pendingPayrollByCurrency)}
+          label="Active agents"
+          value={data.activeAgentCount.toLocaleString()}
+          detail={`${formatAdminMoney(data.agentCommissionsKes, "KES")} commissions credited`}
         />
       </div>
       <div className="grid gap-4 lg:grid-cols-2">

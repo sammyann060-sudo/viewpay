@@ -6,7 +6,6 @@ export const KES_PER_POINT = 0.2;
 export const KES_PER_USDT = 130;
 export const MPESA_MIN_POINTS = 250;
 export const USDT_MIN_POINTS = 650;
-export const DAILY_LIMIT = 20;
 export const REFERRAL_BONUS = 50;
 export const MAX_ACCOUNTS_PER_DEVICE = 2;
 
@@ -29,7 +28,7 @@ export function summarizeWalletActivity(
   payouts: ReadonlyArray<{ status: string; amount: number; currency: string }>,
 ) {
   const earnedPoints = transactions.reduce((total, transaction) => {
-    if (transaction.kind !== "ad_reward" && transaction.kind !== "referral_reward") return total;
+    if (transaction.kind !== "task_reward" && transaction.kind !== "referral_reward") return total;
     return total + Math.max(0, transaction.points_delta);
   }, 0);
   const withdrawnByCurrency: Record<string, number> = {};

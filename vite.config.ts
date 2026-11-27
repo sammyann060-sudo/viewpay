@@ -5,12 +5,7 @@ import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    tanstackStart({ server: { entry: "server" } }),
-    react(),
-    tailwindcss(),
-    nitro(),
-  ],
+  plugins: [tanstackStart({ server: { entry: "server" } }), react(), tailwindcss(), nitro()],
   resolve: { tsconfigPaths: true },
   server: { host: true, port: 8080, strictPort: true },
 });

@@ -60,7 +60,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (session) void navigate({ to: "/earn" });
+    if (session) void navigate({ to: "/tasks" });
   }, [session, navigate]);
 
   async function submit(event: React.FormEvent) {
@@ -100,7 +100,7 @@ function AuthPage() {
           throw error;
         }
         if (data.session) {
-          await navigate({ to: "/earn" });
+          await navigate({ to: "/tasks" });
         } else {
           setConfirmationEmail(normalizedEmail);
         }

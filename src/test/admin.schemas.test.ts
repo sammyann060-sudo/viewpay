@@ -3,9 +3,9 @@ import {
   agentCommissionStatusSchema,
   agentSchema,
   hasAdminRole,
+  marketplaceTaskSchema,
   payoutActionSchema,
 } from "@/lib/admin.schemas";
-import { summarizeAdminFinances } from "@/lib/admin.metrics";
 
 describe("admin workspace rules", () => {
   it("allows an admin role but not a regular user role", () => {
@@ -38,25 +38,30 @@ describe("admin workspace rules", () => {
     ).toThrow();
   });
 
-  it("uses the configured KSh 2 estimate per completed ad view", () => {
-    expect(
-      summarizeAdminFinances({ completedViews: 2, pointsAwarded: 0, pointsOutstanding: 0 })
-        .advertiserRevenueEstimateKes,
-    ).toBe(4);
+  it("rejects tasks requesting mass account creation or credentials", () => {
+    const unsafeTask = {
+      title: "Create Gmail accounts",
+      category: "Online work",
+      description: "Create multiple Gmail accounts for the requester.",
+      instructions: "Use the password supplied in the task and submit the new accounts.",
+      proof_prompt: "Send the account email and password.",
+      reward_kes: 10,
+      slots: 20,
+    };
+    expect(marketplaceTaskSchema.safeParse(unsafeTask).success).toBe(false);
   });
 
-  it("values 500 outstanding points at KSh 100", () => {
-    expect(
-      summarizeAdminFinances({ completedViews: 0, pointsAwarded: 0, pointsOutstanding: 500 })
-        .walletLiabilityEstimateKes,
-    ).toBe(100);
-  });
-
-  it("values 30 rewarded points at KSh 6", () => {
-    expect(
-      summarizeAdminFinances({ completedViews: 0, pointsAwarded: 30, pointsOutstanding: 0 })
-        .rewardsEstimateKes,
-    ).toBe(6);
+  it("accepts an ordinary research task and caps its fields", () => {
+    const task = marketplaceTaskSchema.parse({
+      title: "Review a local product catalogue",
+      category: "Research",
+      description: "Check these public product descriptions for missing details.",
+      instructions: "Open each public product page and report any missing size or color details.",
+      proof_prompt: "Link to your completed checklist.",
+      reward_kes: "10",
+      slots: "20",
+    });
+    expect(task.reward_kes * task.slots).toBe(200);
   });
 
   it("does not allow a paid commission to be reopened", () => {

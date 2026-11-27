@@ -1,6 +1,6 @@
-# ViewPay Rewards
+﻿# ViewPay Rewards
 
-ViewPay is a rewards web app where members watch sponsored ads, answer a question, earn points, and request payouts. It includes account and device checks, a wallet, activity history, referrals, and an administrator workspace.
+ViewPay is a task marketplace. Administrators publish work with clear instructions, a reward and a limited number of slots. Members claim a slot, complete the work and submit a report and evidence. Administrators review submissions; approvals credit the member's wallet, and payout requests are handled separately.
 
 ## Run locally
 
@@ -24,7 +24,7 @@ supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
 
-The baseline migrations describe the schema required by this application. Review them against any existing project before applying them to a database that already contains ViewPay tables or user data.
+The baseline and marketplace migrations describe the schema required by this application. Review them against any existing project before applying them to a database that already contains ViewPay tables or user data. A local database is required to run or lint migrations.
 
 ## Checks
 
@@ -37,7 +37,11 @@ npm run build
 
 ## Payout operations
 
-Members can request M-Pesa or USDT payouts. An administrator reviews each request and records the provider's payment reference. The app does not currently call M-Pesa Daraja or a crypto payment API automatically. Advertiser revenue and reward cost in the admin overview are estimates, not reconciled payments.
+Members can request M-Pesa or USDT payouts. An administrator reviews each request and records the provider's payment reference. Approving task work credits the member's in-app balance; it does not trigger an automatic bank or mobile-money transfer. Fund posted task commitments and verify submitted work before approval.
+
+## Marketplace rules
+
+Do not post tasks asking members to create third-party accounts, share passwords or sign-in codes, fake reviews or engagement, or expose private personal information. Task instructions are hidden until a member claims a slot. Reports and optional evidence links are visible to the member and administrators.
 
 ## Phone verification
 

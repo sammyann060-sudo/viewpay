@@ -16,6 +16,7 @@ export const Route = createFileRoute("/admin")({
 
 const sections = [
   ["/admin", "Overview"],
+  ["/admin/tasks", "Tasks"],
   ["/admin/users", "Users"],
   ["/admin/payouts", "Payouts"],
   ["/admin/transactions", "Transactions"],

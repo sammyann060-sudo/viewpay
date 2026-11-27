@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   canCreateAccountOnDevice,
-  DAILY_LIMIT,
   formatKes,
   getAvailablePayoutMethods,
   KES_PER_POINT,
@@ -17,7 +16,6 @@ describe("viewpay rules", () => {
   it("M-Pesa minimum is KSh 50", () => expect(MPESA_MIN_POINTS * KES_PER_POINT).toBe(50));
   it("USDT minimum covers $1 at KSh 130", () =>
     expect(USDT_MIN_POINTS * KES_PER_POINT).toBeGreaterThanOrEqual(130));
-  it("daily limit is 20 ads", () => expect(DAILY_LIMIT).toBe(20));
   it("normalizes Kenyan numbers", () => {
     expect(normalizePhone("0712 345 678")).toBe("254712345678");
     expect(normalizePhone("+254 110 123456")).toBe("254110123456");
@@ -41,7 +39,7 @@ describe("viewpay rules", () => {
   it("calculates lifetime totals from recorded wallet and payout activity", () => {
     const totals = summarizeWalletActivity(
       [
-        { kind: "ad_reward", points_delta: 20 },
+        { kind: "task_reward", points_delta: 20 },
         { kind: "referral_reward", points_delta: 50 },
         { kind: "payout", points_delta: -250 },
         { kind: "payout_refund", points_delta: 250 },

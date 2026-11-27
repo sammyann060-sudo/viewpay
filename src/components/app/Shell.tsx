@@ -3,8 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   ChartNoAxesCombined,
+  BriefcaseBusiness,
   LogOut,
-  PlayCircle,
   ShieldCheck,
   UserRound,
   Users,
@@ -46,7 +46,7 @@ export function useIsAdmin(userId: string | undefined) {
 }
 
 const nav = [
-  { to: "/earn", label: "Earn", icon: PlayCircle },
+  { to: "/tasks", label: "Tasks", icon: BriefcaseBusiness },
   { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/history", label: "History", icon: ChartNoAxesCombined },
   { to: "/invite", label: "Invite", icon: Users },
@@ -180,7 +180,7 @@ export function Shell({ children }: { children: (userId: string) => ReactNode })
       <header
         className={`flex items-center justify-between pt-6 pb-4 ${isAdminPath ? "px-4 sm:px-6 lg:px-8" : "px-5"}`}
       >
-        <Link to="/earn" aria-label="ViewPay home" className="inline-flex items-center">
+        <Link to="/tasks" aria-label="ViewPay home" className="inline-flex items-center">
           <BrandLogo className="h-9 w-auto" />
         </Link>
         <div className="flex items-center gap-2">

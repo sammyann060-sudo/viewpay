@@ -80,12 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "ViewPay" },
       {
         name: "description",
-        content: "Watch short ads, earn points, cash out to M-Pesa in Kenya or USDT worldwide.",
+        content:
+          "Choose online tasks, submit your work for review and get paid when it is approved.",
       },
       { property: "og:title", content: "ViewPay" },
       {
         property: "og:description",
-        content: "Watch short ads, earn points, cash out to M-Pesa in Kenya or USDT worldwide.",
+        content:
+          "Choose online tasks, submit your work for review and get paid when it is approved.",
       },
       { name: "theme-color", content: "#170014" },
       { property: "og:type", content: "website" },

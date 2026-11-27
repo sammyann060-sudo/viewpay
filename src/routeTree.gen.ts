@@ -16,11 +16,13 @@ import { Route as EarnRouteImport } from './routes/earn'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminPayoutsRouteImport } from './routes/admin/payouts'
 import { Route as AdminPayrollRouteImport } from './routes/admin/payroll'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminTasksRouteImport } from './routes/admin/tasks'
 import { Route as AdminTransactionsRouteImport } from './routes/admin/transactions'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 
@@ -59,6 +61,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
@@ -84,6 +91,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminTasksRoute = AdminTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
@@ -103,10 +115,12 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/invite': typeof InviteRoute
   '/profile': typeof ProfileRoute
+  '/tasks': typeof TasksRoute
   '/wallet': typeof WalletRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/payroll': typeof AdminPayrollRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/tasks': typeof AdminTasksRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
@@ -118,10 +132,12 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/invite': typeof InviteRoute
   '/profile': typeof ProfileRoute
+  '/tasks': typeof TasksRoute
   '/wallet': typeof WalletRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/payroll': typeof AdminPayrollRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/tasks': typeof AdminTasksRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
@@ -135,10 +151,12 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/invite': typeof InviteRoute
   '/profile': typeof ProfileRoute
+  '/tasks': typeof TasksRoute
   '/wallet': typeof WalletRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/payroll': typeof AdminPayrollRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/tasks': typeof AdminTasksRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
@@ -153,10 +171,12 @@ export interface FileRouteTypes {
     | '/history'
     | '/invite'
     | '/profile'
+    | '/tasks'
     | '/wallet'
     | '/admin/payouts'
     | '/admin/payroll'
     | '/admin/settings'
+    | '/admin/tasks'
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/'
@@ -168,10 +188,12 @@ export interface FileRouteTypes {
     | '/history'
     | '/invite'
     | '/profile'
+    | '/tasks'
     | '/wallet'
     | '/admin/payouts'
     | '/admin/payroll'
     | '/admin/settings'
+    | '/admin/tasks'
     | '/admin/transactions'
     | '/admin/users'
     | '/admin'
@@ -184,10 +206,12 @@ export interface FileRouteTypes {
     | '/history'
     | '/invite'
     | '/profile'
+    | '/tasks'
     | '/wallet'
     | '/admin/payouts'
     | '/admin/payroll'
     | '/admin/settings'
+    | '/admin/tasks'
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/'
@@ -201,6 +225,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   InviteRoute: typeof InviteRoute
   ProfileRoute: typeof ProfileRoute
+  TasksRoute: typeof TasksRoute
   WalletRoute: typeof WalletRoute
 }
 
@@ -255,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wallet': {
       id: '/wallet'
       path: '/wallet'
@@ -290,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/tasks': {
+      id: '/admin/tasks'
+      path: '/tasks'
+      fullPath: '/admin/tasks'
+      preLoaderRoute: typeof AdminTasksRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/transactions': {
       id: '/admin/transactions'
       path: '/transactions'
@@ -311,6 +350,7 @@ interface AdminRouteChildren {
   AdminPayoutsRoute: typeof AdminPayoutsRoute
   AdminPayrollRoute: typeof AdminPayrollRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminTasksRoute: typeof AdminTasksRoute
   AdminTransactionsRoute: typeof AdminTransactionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -320,6 +360,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPayoutsRoute: AdminPayoutsRoute,
   AdminPayrollRoute: AdminPayrollRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminTasksRoute: AdminTasksRoute,
   AdminTransactionsRoute: AdminTransactionsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -335,6 +376,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   InviteRoute: InviteRoute,
   ProfileRoute: ProfileRoute,
+  TasksRoute: TasksRoute,
   WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport

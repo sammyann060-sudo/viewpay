@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin/")({ component: OverviewPage });
 function OverviewPage() {
   const load = useServerFn(getAdminOverview);
   const overview = useQuery({ queryKey: ["admin-overview"], queryFn: () => load() });
-  if (overview.isLoading) return <AdminLoading label="Loading platform overview…" />;
+  if (overview.isLoading) return <AdminLoading label="Loading marketplace overview…" />;
   if (overview.error)
     return <AdminError message={overview.error.message} onRetry={() => void overview.refetch()} />;
   if (!overview.data) return null;
@@ -22,36 +22,32 @@ function OverviewPage() {
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold">Financial health</h2>
+        <h2 className="text-xl font-bold">Marketplace overview</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Estimates use the configured KSh 2 advertiser value per completed view and KSh 0.20 per
-          reward point.
+          Track open work, submitted reports and approved earnings.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <AdminMetric label="Accounts" value={data.accountCount.toLocaleString()} />
+        <AdminMetric label="Members" value={data.accountCount.toLocaleString()} />
         <AdminMetric
-          label="Completed views"
-          value={data.completedViews.toLocaleString()}
-          detail={`${data.pointsAwarded.toLocaleString()} reward points issued`}
+          label="Posted tasks"
+          value={data.taskCount.toLocaleString()}
+          detail={`${data.approvedTaskCount.toLocaleString()} approved submissions`}
+        />
+        <AdminMetric label="Waiting for review" value={data.pendingSubmissions.toLocaleString()} />
+        <AdminMetric
+          label="Approved task earnings"
+          value={formatAdminMoney(data.approvedRewardsKes, "KES")}
         />
         <AdminMetric
-          label="Outstanding wallet liability"
+          label="Open task commitment"
+          value={formatAdminMoney(data.postedTaskBudgetKes, "KES")}
+          detail="Unfilled published slots plus assigned work"
+        />
+        <AdminMetric
+          label="Wallet balances"
           value={formatAdminMoney(data.walletLiabilityEstimateKes, "KES")}
           detail={`${data.pointsOutstanding.toLocaleString()} points`}
-        />
-        <AdminMetric
-          label="Estimated advertiser revenue"
-          value={formatAdminMoney(data.advertiserRevenueEstimateKes, "KES")}
-        />
-        <AdminMetric
-          label="Estimated reward cost"
-          value={formatAdminMoney(data.rewardsEstimateKes, "KES")}
-        />
-        <AdminMetric
-          label="Estimated gross spread"
-          value={formatAdminMoney(data.grossSpreadEstimateKes, "KES")}
-          detail="Before operating costs and payout fees"
         />
         <AdminMetric label="Pending payouts" value={moneyTotals(data.pendingPayoutsByCurrency)} />
         <AdminMetric

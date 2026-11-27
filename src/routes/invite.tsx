@@ -11,9 +11,15 @@ export const Route = createFileRoute("/invite")({
   head: () => ({
     meta: [
       { title: "Invite friends — ViewPay" },
-      { name: "description", content: "Invite friends to ViewPay and earn bonus points." },
+      {
+        name: "description",
+        content: "Invite friends to ViewPay and earn bonus points after their first approved task.",
+      },
       { property: "og:title", content: "Invite friends — ViewPay" },
-      { property: "og:description", content: "Invite friends and earn bonus points." },
+      {
+        property: "og:description",
+        content: "Invite friends and earn bonus points after their first approved task.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -31,7 +37,7 @@ function Invite({ userId }: { userId: string }) {
   const link = typeof window !== "undefined" ? `${window.location.origin}/auth?ref=${code}` : "";
 
   async function share() {
-    const text = `I'm earning on ViewPay by watching short ads. Join with my code ${code}: ${link}`;
+    const text = `I'm earning on ViewPay by completing tasks. Join with my code ${code}: ${link}`;
     if (navigator.share) await navigator.share({ text }).catch(() => {});
     else {
       await navigator.clipboard.writeText(text);
@@ -47,7 +53,8 @@ function Invite({ userId }: { userId: string }) {
         <span className="text-primary">earn {REFERRAL_BONUS} points</span> each.
       </h1>
       <p className="mt-3 text-muted-foreground">
-        You get the bonus when your friend answers their first ad correctly.
+        You get the bonus after your friend completes their first task that is approved by an
+        administrator.
       </p>
       <div className="mt-8 rounded-3xl border border-border bg-card p-6 text-center">
         <p className="text-sm text-muted-foreground">Your code</p>

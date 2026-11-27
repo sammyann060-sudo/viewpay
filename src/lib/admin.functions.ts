@@ -8,11 +8,13 @@ import {
   agentCommissionStatusSchema,
   agentSchema,
   hasAdminRole,
+  marketplaceTaskSchema,
+  marketplaceTaskStatusSchema,
   payoutActionSchema,
   platformSettingsSchema,
+  taskReviewSchema,
   updateAgentSchema,
 } from "@/lib/admin.schemas";
-import { summarizeAdminFinances } from "@/lib/admin.metrics";
 
 type PageResult<T> = { data: T[] | null; error: { message: string } | null };
 
@@ -95,17 +97,20 @@ export const getAdminOverview = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [profiles, views, payouts, commissions] = await Promise.all([
+    const [profiles, tasks, claims, payouts, commissions] = await Promise.all([
       fetchAllPages(
         async (from, to) => await supabaseAdmin.from("profiles").select("points").range(from, to),
       ),
       fetchAllPages(
         async (from, to) =>
           await supabaseAdmin
-            .from("ad_views")
-            .select("points_awarded")
-            .not("completed_at", "is", null)
+            .from("tasks")
+            .select("id,reward_kes,slots,claimed_count,status")
             .range(from, to),
+      ),
+      fetchAllPages(
+        async (from, to) =>
+          await supabaseAdmin.from("task_claims").select("task_id,status").range(from, to),
       ),
       fetchAllPages(
         async (from, to) =>
@@ -121,8 +126,25 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     ]);
 
     const pointsOutstanding = profiles.reduce((total, profile) => total + profile.points, 0);
-    const pointsAwarded = views.reduce((total, view) => total + view.points_awarded, 0);
-    const completedViews = views.length;
+    const taskById = new Map(tasks.map((task) => [task.id, task]));
+    const activeClaimCounts = new Map<string, number>();
+    for (const claim of claims) {
+      if (claim.status === "claimed" || claim.status === "submitted") {
+        activeClaimCounts.set(claim.task_id, (activeClaimCounts.get(claim.task_id) ?? 0) + 1);
+      }
+    }
+    const approvedTasks = claims.filter((claim) => claim.status === "approved");
+    const approvedRewardsKes = approvedTasks.reduce(
+      (total, claim) => total + (taskById.get(claim.task_id)?.reward_kes ?? 0),
+      0,
+    );
+    const pendingSubmissions = claims.filter((claim) => claim.status === "submitted").length;
+    const postedTaskBudgetKes = tasks.reduce((total, task) => {
+      const unclaimedPublishedSlots =
+        task.status === "published" ? Math.max(0, task.slots - task.claimed_count) : 0;
+      const assignedWork = activeClaimCounts.get(task.id) ?? 0;
+      return total + (unclaimedPublishedSlots + assignedWork) * task.reward_kes;
+    }, 0);
     const sumByCurrency = (
       rows: Array<{ amount: number | null; currency: string; status: string }>,
       status: string,
@@ -142,13 +164,15 @@ export const getAdminOverview = createServerFn({ method: "GET" })
         (pendingPayrollByCurrency[commission.currency] ?? 0) + Number(amount);
     }
 
-    const financials = summarizeAdminFinances({ completedViews, pointsAwarded, pointsOutstanding });
     return {
       accountCount: profiles.length,
-      completedViews,
-      pointsAwarded,
+      taskCount: tasks.length,
+      pendingSubmissions,
+      approvedTaskCount: approvedTasks.length,
+      approvedRewardsKes,
+      postedTaskBudgetKes,
       pointsOutstanding,
-      ...financials,
+      walletLiabilityEstimateKes: pointsOutstanding * 0.2,
       pendingPayoutsByCurrency: sumByCurrency(payouts, "pending"),
       paidPayoutsByCurrency: sumByCurrency(payouts, "paid"),
       pendingPayrollByCurrency,
@@ -396,6 +420,97 @@ export const recordAgentCommission = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
     return { ok: true, amount: Number(commission.amount ?? amount) };
+  });
+
+export const getMarketplaceAdminData = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [tasks, claims] = await Promise.all([
+      supabaseAdmin.from("tasks").select("*").order("created_at", { ascending: false }),
+      supabaseAdmin
+        .from("task_claims")
+        .select("*")
+        .order("submitted_at", { ascending: false, nullsFirst: false })
+        .limit(500),
+    ]);
+    if (tasks.error) throw new Error(tasks.error.message);
+    if (claims.error) throw new Error(claims.error.message);
+    const userIds = [...new Set((claims.data ?? []).map((claim) => claim.user_id))];
+    const users = userIds.length
+      ? await supabaseAdmin.from("profiles").select("id, username").in("id", userIds)
+      : { data: [], error: null };
+    if (users.error) throw new Error(users.error.message);
+    const usernames = new Map((users.data ?? []).map((user) => [user.id, user.username]));
+    return {
+      tasks: tasks.data ?? [],
+      claims: (claims.data ?? []).map((claim) => ({
+        ...claim,
+        username: usernames.get(claim.user_id) ?? claim.user_id.slice(0, 8),
+      })),
+    };
+  });
+
+export const createMarketplaceTask = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => marketplaceTaskSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: task, error } = await supabaseAdmin
+      .from("tasks")
+      .insert({
+        created_by: context.userId,
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        reward_kes: data.reward_kes,
+        slots: data.slots,
+      })
+      .select("id")
+      .single();
+    if (error || !task) throw new Error(error?.message ?? "Could not create task");
+    const { error: instructionsError } = await supabaseAdmin
+      .from("task_private_instructions")
+      .insert({
+        task_id: task.id,
+        instructions: data.instructions,
+        proof_prompt: data.proof_prompt,
+      });
+    if (instructionsError) {
+      await supabaseAdmin.from("tasks").delete().eq("id", task.id);
+      throw new Error(instructionsError.message);
+    }
+    return { id: task.id };
+  });
+
+export const updateMarketplaceTaskStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => marketplaceTaskStatusSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("tasks")
+      .update({ status: data.status, updated_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const reviewMarketplaceTask = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => taskReviewSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { error } = await context.supabase.rpc("review_task_submission", {
+      _claim_id: data.claim_id,
+      _decision: data.decision,
+      _admin_note: data.admin_note || null,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const updateAgentCommissionStatus = createServerFn({ method: "POST" })
